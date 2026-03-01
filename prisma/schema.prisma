@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  xUserId       String    @unique
+  username      String
+  handle        String
+  createdAt     DateTime  @default(now())
+  
+  ownedCommunities Community[] @relation("CommunityOwner")
+  memberships      CommunityMember[]
+  participations   SessionParticipant[]
+  engagementsSent  EngagementLog[] @relation("Engager")
+  engagementsRecv  EngagementLog[] @relation("Target")
+}
+
+model Community {
+  id          String   @id @default(uuid())
+  name        String
+  bio         String?
+  ownerId     String
+  planType    String   @default("trial") // "trial", "pro"
+  subscriptionStatus String @default("trial") // "trial", "active", "past_due", "canceled"
+  stripeCustomerId   String? @unique
+  createdAt   DateTime @default(now())
+
+  owner       User     @relation("CommunityOwner", fields: [ownerId], references: [id])
+  members     CommunityMember[]
+  sessions    Session[]
+}
+
+model CommunityMember {
+  id                  String    @id @default(uuid())
+  communityId         String
+  userId              String
+  role                String    @default("member") // "admin", "member"
+  blacklistCount      Int       @default(0)
+  hardBanCount        Int       @default(0)
+  softBanCount        Int       @default(0)
+  isPermanentlyBanned Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+
+  community           Community @relation(fields: [communityId], references: [id])
+  user                User      @relation(fields: [userId], references: [id])
+
+  @@unique([communityId, userId])
+}
+
+model Session {
+  id            String    @id @default(uuid())
+  communityId   String
+  name          String
+  startTime     DateTime
+  endTime       DateTime
+  graceEndTime  DateTime
+  status        String    @default("scheduled") // "scheduled", "active", "completed"
+  createdAt     DateTime  @default(now())
+
+  community     Community @relation(fields: [communityId], references: [id])
+  participants  SessionParticipant[]
+  engagements   EngagementLog[]
+}
+
+model SessionParticipant {
+  id                String    @id @default(uuid())
+  sessionId         String
+  userId            String
+  engagedWithCount  Int       @default(0)
+  engagedByCount    Int       @default(0)
+  grade             String?
+  createdAt         DateTime  @default(now())
+
+  session           Session   @relation(fields: [sessionId], references: [id])
+  user              User      @relation(fields: [userId], references: [id])
+
+  @@unique([sessionId, userId])
+}
+
+model EngagementLog {
+  id          String   @id @default(uuid())
+  sessionId   String
+  engagerId   String
+  targetId    String
+  createdAt   DateTime @default(now())
+
+  session     Session  @relation(fields: [sessionId], references: [id])
+  engager     User     @relation("Engager", fields: [engagerId], references: [id])
+  target      User     @relation("Target", fields: [targetId], references: [id])
+}
