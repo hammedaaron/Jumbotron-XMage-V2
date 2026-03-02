@@ -57,12 +57,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithX = async () => {
-    await supabase.auth.signInWithOAuth({
+    console.log('Attempting sign in with X (Twitter)...');
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
       options: {
         redirectTo: window.location.origin,
       },
     });
+    
+    if (error) {
+      console.error('Supabase Auth Error:', error.message, error);
+    } else {
+      console.log('Sign in initiated:', data);
+    }
   };
 
   const signOut = async () => {
