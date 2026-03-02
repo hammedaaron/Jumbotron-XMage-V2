@@ -43,19 +43,6 @@ export default function Login() {
               <span>Sign up with X</span>
             </button>
             
-            <div className="flex items-center gap-4 py-2">
-              <div className="h-px bg-x-border flex-1" />
-              <span className="text-x-gray text-sm">or</span>
-              <div className="h-px bg-x-border flex-1" />
-            </div>
-
-            <button 
-              disabled
-              className="w-full bg-transparent border border-x-border text-x-blue py-3 rounded-full font-bold text-lg hover:bg-x-blue/5 transition-all opacity-50 cursor-not-allowed"
-            >
-              Create account
-            </button>
-
             <p className="text-[10px] text-x-gray leading-relaxed mt-4">
               By signing up, you agree to the <span className="text-x-blue hover:underline cursor-pointer">Terms of Service</span> and <span className="text-x-blue hover:underline cursor-pointer">Privacy Policy</span>, including <span className="text-x-blue hover:underline cursor-pointer">Cookie Use</span>.
             </p>
